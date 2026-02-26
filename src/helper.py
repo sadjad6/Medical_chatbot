@@ -1,20 +1,19 @@
-from langchain.document_loaders import PyPDFLoader, DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.documents import Document
 from typing import List
-from langchain.schema import Document
 
 
-#Extract Data From the PDF File
-def load_pdf_file(data):
-    loader= DirectoryLoader(data,
-                            glob="*.pdf",
-                            loader_cls=PyPDFLoader)
-
-    documents=loader.load()
-
+def load_pdf_file(data_path: str) -> List[Document]:
+    """Extract Data From the PDF Files in the given directory."""
+    loader = DirectoryLoader(
+        data_path,
+        glob="*.pdf",
+        loader_cls=PyPDFLoader
+    )
+    documents: List[Document] = loader.load()
     return documents
-
 
 
 def filter_to_minimal_docs(docs: List[Document]) -> List[Document]:
@@ -24,7 +23,7 @@ def filter_to_minimal_docs(docs: List[Document]) -> List[Document]:
     """
     minimal_docs: List[Document] = []
     for doc in docs:
-        src = doc.metadata.get("source")
+        src: str = doc.metadata.get("source", "")
         minimal_docs.append(
             Document(
                 page_content=doc.page_content,
@@ -34,16 +33,14 @@ def filter_to_minimal_docs(docs: List[Document]) -> List[Document]:
     return minimal_docs
 
 
-
-#Split the Data into Text Chunks
-def text_split(extracted_data):
-    text_splitter=RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=20)
-    text_chunks=text_splitter.split_documents(extracted_data)
+def text_split(extracted_data: List[Document]) -> List[Document]:
+    """Split the Data into Text Chunks."""
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=20)
+    text_chunks: List[Document] = text_splitter.split_documents(extracted_data)
     return text_chunks
 
 
-
-#Download the Embeddings from HuggingFace 
-def download_hugging_face_embeddings():
-    embeddings=HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')  #this model return 384 dimensions
+def download_hugging_face_embeddings() -> HuggingFaceEmbeddings:
+    """Download the Embeddings from HuggingFace."""
+    embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
     return embeddings
