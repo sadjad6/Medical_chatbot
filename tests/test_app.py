@@ -22,7 +22,9 @@ def mock_agent_executor():
 @pytest.fixture
 def client(monkeypatch, mock_agent_executor):
     """Setup Flask test client with mock environment."""
-    monkeypatch.setattr(config, "is_valid", True)
+    monkeypatch.setattr(config, "pinecone_api_key", "test_pc_key")
+    monkeypatch.setattr(config, "openai_api_key", "test_openai_key")
+    monkeypatch.setattr(config, "tavily_api_key", "test_tavily_key")
     
     app = create_app()
     app.config.update({"TESTING": True})
@@ -49,7 +51,8 @@ def test_chat_missing_msg_field(client):
 
 def test_missing_environment_variables(monkeypatch):
     """Unhappy path test: Ensure ValueError is raised when config is missing."""
-    monkeypatch.setattr(config, "is_valid", False)
+    monkeypatch.setattr(config, "pinecone_api_key", "")
+    monkeypatch.setattr(config, "openai_api_key", "")
     
     with pytest.raises(ValueError, match="Missing PINECONE_API_KEY or OPENAI_API_KEY"):
         create_app()
