@@ -9,11 +9,12 @@ class Config:
     """Store environment variables and application configurations."""
     pinecone_api_key: str = os.getenv("PINECONE_API_KEY", "")
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
+    tavily_api_key: str = os.getenv("TAVILY_API_KEY", "")
     pinecone_index_name: str = "medical-chatbot"
     
     @property
     def is_valid(self) -> bool:
-        """Check if all required API keys are present."""
+        """Check if required API keys are present."""
         return bool(self.pinecone_api_key and self.openai_api_key)
 
 config = Config()
@@ -21,3 +22,5 @@ config = Config()
 # Update os environment so existing langchain setups implicitly pick it up
 os.environ["PINECONE_API_KEY"] = config.pinecone_api_key
 os.environ["OPENAI_API_KEY"] = config.openai_api_key
+if config.tavily_api_key:
+    os.environ["TAVILY_API_KEY"] = config.tavily_api_key
